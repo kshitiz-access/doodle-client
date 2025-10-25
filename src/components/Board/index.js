@@ -14,6 +14,20 @@ const Board = () => {
     const { activeMenuItem, actionMenuItem } = useSelector((state) => state.menu);
     const { color, size } = useSelector((state) => state.toolBox[activeMenuItem]);
 
+    // Prevent browser navigation from breaking canvas
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            e.preventDefault();
+            return '';
+        };
+        
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
     useEffect(() => {
         if (!canvasRef.current) return;
         const canvas = canvasRef.current;
