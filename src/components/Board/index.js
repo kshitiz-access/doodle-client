@@ -5,7 +5,7 @@ import { actionItemClick } from '@/slice/menuSlice'
 import { socket } from "@/socket";
 import {imageDataToBase64,base64ToImageData} from '@/components/Board/help'
 
-const Board = () => {
+const Board = ({ roomId }) => {
     const dispatch = useDispatch();
     const canvasRef = useRef(null);
     const shouldDraw = useRef(false);
@@ -13,6 +13,13 @@ const Board = () => {
     const historyPointer = useRef(0);
     const { activeMenuItem, actionMenuItem } = useSelector((state) => state.menu);
     const { color, size } = useSelector((state) => state.toolBox[activeMenuItem]);
+
+    // Join room on component mount
+    useEffect(() => {
+        if (roomId) {
+            socket.emit('joinRoom', roomId);
+        }
+    }, [roomId]);
 
     // Prevent browser navigation from breaking canvas
     useEffect(() => {
@@ -44,13 +51,13 @@ const Board = () => {
             context.putImageData(imageData, 0, 0);
             const base64ImageData = imageDataToBase64(imageData);   
             // Emitting undo socket event to server
-            socket.emit('undoClick', {actionMenuItem,base64ImageData});
+            socket.emit('undoClick', {actionMenuItem,base64ImageData,roomId});
         } else if (actionMenuItem === MENU_ITEMS.REDO) {
             if (historyPointer.current < drawHistory.current.length - 1) historyPointer.current += 1;
             const imageData = drawHistory.current[historyPointer.current];
             context.putImageData(imageData, 0, 0);
             const base64ImageData = imageDataToBase64(imageData);
-            socket.emit('redoClick', {actionMenuItem,base64ImageData});
+            socket.emit('redoClick', {actionMenuItem,base64ImageData,roomId});
         }
         dispatch(actionItemClick(null));
 
@@ -104,6 +111,13 @@ const Board = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        // Initialize history with blank canvas
+        if (drawHistory.current.length === 0) {
+            const initialImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            drawHistory.current.push(initialImageData);
+            historyPointer.current = 0;
+        }
+
         const beginPath = (x, y) => {
             context.beginPath();
             context.moveTo(x, y);
@@ -116,18 +130,24 @@ const Board = () => {
         const handleMouseDown = (e) => {
             shouldDraw.current = true;
             beginPath(e.clientX, e.clientY)
-            socket.emit('beginPath', { x: e.clientX, y: e.clientY });
+            socket.emit('beginPath', { x: e.clientX, y: e.clientY, roomId });
         };
         const handleMouseMove = (e) => {
             if (!shouldDraw.current) return;
             drawLine(e.clientX, e.clientY);
-            socket.emit('drawLine', { x: e.clientX, y: e.clientY });
+            socket.emit('drawLine', { x: e.clientX, y: e.clientY, roomId });
         };
         const handleMouseUp = (e) => {
             shouldDraw.current = false;
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             drawHistory.current.push(imageData);
             historyPointer.current = drawHistory.current.length - 1;
+            
+            // Save canvas state for new users
+            if (roomId) {
+                const canvasDataURL = canvas.toDataURL();
+                socket.emit('saveCanvas', { roomId, canvasData: canvasDataURL });
+            }
         };
 
         const handleBeginPath = (path) => {
@@ -141,6 +161,24 @@ const Board = () => {
         canvas.addEventListener('mousedown', handleMouseDown);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('mouseup', handleMouseUp);
+
+        // Canvas loading for new users
+        const loadCanvas = (canvasDataURL) => {
+            if (canvasDataURL) {
+                const img = new Image();
+                img.onload = () => {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(img, 0, 0);
+                    // Update history with loaded canvas
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    drawHistory.current = [imageData];
+                    historyPointer.current = 0;
+                };
+                img.src = canvasDataURL;
+            }
+        };
+
+        socket.on('loadCanvas', loadCanvas);
 
         // Socket Code
         socket.on('beginPath', handleBeginPath);
