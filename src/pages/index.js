@@ -1,13 +1,15 @@
 
-import Menu from '@/components/Menu'
-import Toolbox from '@/components/Toolbox'
-import Board from '@/components/Board'
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
 export default function Home() {
-  return (
-    <>
-      <Menu />
-      <Toolbox />
-      <Board/>
-    </>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    // Generate unique room ID and redirect
+    const roomId = Math.random().toString(36).substring(2, 15);
+    router.replace(`/room/${roomId}`);
+  }, [router]);
+
+  return <div>Creating your private room...</div>;
 }
