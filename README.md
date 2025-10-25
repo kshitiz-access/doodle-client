@@ -2,6 +2,12 @@
 
 Real-time collaborative drawing application built with Next.js, React, and Socket.IO.
 
+## 🚀 Live Demo
+
+**Try it now:** [https://doodle-app-gold.vercel.app](https://doodle-app-gold.vercel.app)
+
+---
+
 ## Features
 
 ### 🎨 Drawing Tools
