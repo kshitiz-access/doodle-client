@@ -1,40 +1,99 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Doodle Client
 
-## Getting Started
+Real-time collaborative drawing application built with Next.js, React, and Socket.IO.
 
-First, run the development server:
+## Features
+
+### 🎨 Drawing Tools
+- **Pencil & Eraser** with customizable colors and brush sizes
+- **Color Palette**: Black, Red, Green, Blue, Orange, Yellow, White
+- **Brush Sizes**: Adjustable thickness for both pencil and eraser
+- **Undo/Redo**: Full history management with safety checks
+
+### 🤝 Real-time Collaboration
+- **Private Rooms**: Each session gets a unique URL
+- **Live Drawing**: See other users' strokes in real-time
+- **Canvas Persistence**: New users see existing drawings immediately
+- **Room Isolation**: Different rooms don't interfere with each other
+
+### 🔗 Sharing & UX
+- **Copy Room Link**: Modern toast notification system
+- **Responsive Design**: Works on desktop and mobile
+- **Smooth Performance**: Optimized for multiple concurrent users
+- **Browser Navigation**: Handles back/forward buttons gracefully
+
+## Tech Stack
+
+- **Next.js 14** - React framework
+- **React 18** - UI library
+- **Redux Toolkit** - State management
+- **Socket.IO Client** - Real-time communication
+- **Tailwind CSS** - Styling
+- **FontAwesome** - Icons
+
+## Installation
 
 ```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Usage
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+1. **Start Drawing**: Visit the app to get a unique room URL
+2. **Share Room**: Click the link icon to copy and share your room
+3. **Collaborate**: Others join via the shared link to draw together
+4. **Tools**: Use pencil/eraser, change colors and sizes
+5. **History**: Undo/redo actions are synchronized across users
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## Project Structure
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```
+src/
+├── components/
+│   ├── Board/          # Canvas and drawing logic
+│   ├── Menu/           # Tool selection and actions
+│   └── Toolbox/        # Color and size controls
+├── pages/
+│   ├── room/[roomId].js # Room-based collaboration
+│   └── index.js        # Auto-redirect to new room
+├── slice/              # Redux state management
+└── styles/             # Global styles
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Environment Variables
 
-## Learn More
+```bash
+# Socket.IO server URL (automatically configured)
+NODE_ENV=development  # or production
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optimized for deployment on:
+- **Vercel** (recommended for Next.js)
+- Netlify
+- Any static hosting platform
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Development Timeline
 
-## Deploy on Vercel
+Built over 15 days with realistic commit history:
+- Day 1-3: Next.js setup and basic structure
+- Day 4-8: Drawing tools and canvas functionality  
+- Day 9-12: Real-time collaboration with Socket.IO
+- Day 13-15: Room system and UI improvements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+MIT
+
+---
+
+**Live Demo**: Deploy and share your room links for instant collaboration!
